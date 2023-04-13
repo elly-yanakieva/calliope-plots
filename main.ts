@@ -834,6 +834,14 @@ namespace grove {
             let data = "GET /update?api_key=" + userName
             if (!isNaN(field1)) data = data + "&field1=" + field1
             data = data + "&label=" + label + "&username=" + userName + "&measurement="+ measurementToString(measurement);
+            data = data + " HTTP/1.1"
+            data = data + "\u000D\u000A"
+            data = data + "User-Agent: curl/7.58.0"
+            data = data + "\u000D\u000A"
+            data = data + "Host: "+apiUrl
+            data = data + "\u000D\u000A"
+            data = data + "Accept: */*"
+            data = data + "\u000D\u000A"
 
             sendAtCmd("AT+CIPSEND=" + (data.length + 2))
             result = waitAtResponse(">", "OK", "ERROR", 2000)
