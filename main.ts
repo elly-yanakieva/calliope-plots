@@ -74,6 +74,7 @@ function measurementToString(m : Measurement){
     if(m == Measurement.Bodenfeuchtigkeit) return "moisture";
     if(m == Measurement.Temperatur) return "temp";
     if(m == Measurement.CO2) return "co2";
+    return "invalid";
 }
 
 enum GroveJoystickKey {
