@@ -60,6 +60,22 @@ enum GroveGesture {
     Wave = 9
 }
 
+enum Measurement {
+    Licht,
+    Temperatur,
+    CO2,
+    Bodenfeuchtigkeit,
+    Abstand
+}
+
+function measurementToString(m : Measurement){
+    if(m == Measurement.Licht) return "light";
+    if(m == Measurement.Abstand) return "distance";
+    if(m == Measurement.Bodenfeuchtigkeit) return "moisture";
+    if(m == Measurement.Temperatur) return "temp";
+    if(m == Measurement.CO2) return "co2";
+}
+
 enum GroveJoystickKey {
     //% block="None"
     None = 0,
@@ -791,14 +807,13 @@ namespace grove {
     }
 
     /**
-     * Send data to some API endpoint
+     * Send data to api
      */
-    //% block="Send Data to your API Channel|API URL %apiUrl|API port %apiPort|Write API Key %apiKey|Field1 %field1|Field2 %field2|Field3 %field3|Field4 %field4|Field5 %field5|Field6 %field6|Field7 %field7|Field8 %field8"
+    //% block="Send Data to your Api Channel|Username %apiKey|URL %apiUrl|Port %apiPort|ID %label|Measurement %measurement|Field1 %field1|"
     //% group="UartWiFi"
-    //% apiUrl.defl="your API URL"
-    //% apiPort.defl="your API Port"
-    //% apiKey.defl="your Write API Key"
-    export function sendToApi(apiUrl:string, apiPort: string, apiKey: string, field1: number, field2: number, field3: number, field4: number, field5: number, field6: number, field7: number, field8: number) {
+    //% apiKey.defl="your username"
+    //% apiUrl.defl="URL"
+    export function sendToApi(userName: string, apiUrl:string, apiPort:string, label:string, measurement:Measurement, field1: number) {
         let result = 0
         let retry = 2
 
@@ -815,23 +830,9 @@ namespace grove {
             result = waitAtResponse("OK", "ALREADY CONNECTED", "ERROR", 2000)
             if (result == 3) continue
 
-            let data = "GET /update?api_key=" + apiKey
+            let data = "GET /update?api_key=" + userName
             if (!isNaN(field1)) data = data + "&field1=" + field1
-            if (!isNaN(field2)) data = data + "&field2=" + field2
-            if (!isNaN(field3)) data = data + "&field3=" + field3
-            if (!isNaN(field4)) data = data + "&field4=" + field4
-            if (!isNaN(field5)) data = data + "&field5=" + field5
-            if (!isNaN(field6)) data = data + "&field6=" + field6
-            if (!isNaN(field7)) data = data + "&field7=" + field7
-            if (!isNaN(field8)) data = data + "&field8=" + field8
-            data = data + " HTTP/1.1"
-            data = data + "\u000D\u000A"
-            data = data + "User-Agent: curl/7.58.0"
-            data = data + "\u000D\u000A"
-            data = data + "Host: "+apiUrl
-            data = data + "\u000D\u000A"
-            data = data + "Accept: */*"
-            data = data + "\u000D\u000A"
+            data = data + "&label=" + label + "&username=" + userName + "&measurement="+ measurementToString(measurement);
 
             sendAtCmd("AT+CIPSEND=" + (data.length + 2))
             result = waitAtResponse(">", "OK", "ERROR", 2000)
@@ -846,7 +847,6 @@ namespace grove {
             if (result == 1) break
         }
     }
-
     /**
      * Send data to IFTTT
      */
